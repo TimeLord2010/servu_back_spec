@@ -1,0 +1,251 @@
+openapi: 3.0.3
+info:
+  title: SerVu Restaurant User Management API
+  description: Restaurant user management endpoints for SerVu Backend
+  version: 1.0.0
+
+paths:
+  /restaurants/{restaurantId}/users:
+    get:
+      tags:
+        - Restaurant Users
+      summary: Get restaurant users
+      description: Get all users associated with a restaurant (owner only)
+      parameters:
+        - name: restaurantId
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Restaurant users retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RestaurantUser'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          description: Restaurant not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+        - Restaurant Users
+      summary: Add user to restaurant
+      description: Add a user to the restaurant (owner only)
+      parameters:
+        - name: restaurantId
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+                - role
+              properties:
+                userId:
+                  type: integer
+                  example: 5
+                role:
+                  type: string
+                  enum: [server, cook, administrator]
+                  example: server
+      responses:
+        '201':
+          description: User added to restaurant successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestaurantUser'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          description: Restaurant or user not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: User already associated with restaurant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /restaurants/{restaurantId}/users/{userId}:
+    delete:
+      tags:
+        - Restaurant Users
+      summary: Remove user from restaurant
+      description: Remove a user from the restaurant (owner only)
+      parameters:
+        - name: restaurantId
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 5
+      responses:
+        '204':
+          description: User removed from restaurant successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          description: Restaurant or user not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: User ID
+          example: 1
+        email:
+          type: string
+          format: email
+          description: User's email address
+          example: john.doe@restaurant.com
+        firstName:
+          type: string
+          description: User's first name
+          example: John
+        lastName:
+          type: string
+          description: User's last name
+          example: Doe
+        role:
+          type: string
+          enum: [server, cook, administrator]
+          description: User's role in the restaurant
+          example: server
+        isActive:
+          type: boolean
+          description: Whether the user account is active
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+          description: Account creation timestamp
+          example: 2024-01-15T10:30:00Z
+        updatedAt:
+          type: string
+          format: date-time
+          description: Account last update timestamp
+          example: 2024-01-20T14:45:00Z
+
+    RestaurantUser:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Restaurant-User association ID
+          example: 1
+        restaurantId:
+          type: integer
+          description: Restaurant ID
+          example: 1
+        userId:
+          type: integer
+          description: User ID
+          example: 5
+        role:
+          type: string
+          enum: [server, cook, administrator]
+          description: User's role in this restaurant
+          example: server
+        user:
+          $ref: '#/components/schemas/User'
+        createdAt:
+          type: string
+          format: date-time
+          description: Association creation timestamp
+          example: 2024-01-15T10:30:00Z
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: Invalid credentials
+        code:
+          type: string
+          description: Error code
+          example: VALIDATION_ERROR
+        details:
+          type: object
+          description: Additional error details
+          additionalProperties: true
+
+  responses:
+    UnauthorizedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Authentication required
+            code: AUTH_REQUIRED
+
+    ForbiddenError:
+      description: Access forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Access forbidden
+            code: ACCESS_FORBIDDEN
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from login endpoint
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Restaurant Users
+    description: Restaurant user management endpoints
