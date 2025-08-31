@@ -1,0 +1,36 @@
+{
+  "name": "servu_back",
+  "version": "1.0.0",
+  "description": "A backend API specification for restaurant management systems.",
+  "main": "src/index.mjs",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "start": "node --env-file=.env src/index.mjs",
+    "check": "tsc -p jsconfig.json --no-Emit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TimeLord2010/servu_back_spec.git"
+  },
+  "author": "Vinícius Gabriel",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TimeLord2010/servu_back_spec/issues"
+  },
+  "homepage": "https://github.com/TimeLord2010/servu_back_spec#readme",
+  "dependencies": {
+    "@surrealdb/node": "^1.0.0-beta.3",
+    "@types/bcrypt": "^6.0.0",
+    "bcrypt": "^6.0.0",
+    "express": "^4.21.2",
+    "express-async-errors": "^3.1.1",
+    "ws": "^8.18.3",
+    "zod": "^4.1.5"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.3.0"
+  }
+}

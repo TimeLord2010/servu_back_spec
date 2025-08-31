@@ -1,0 +1,10 @@
+*.db
+*.py
+*.log
+*.json
+
+.env
+!.env.example
+
+.vscode/settings.json
+node_modules
