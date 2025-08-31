@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import { DuplicateEmailError } from "../data/errors/duplicate_email_error.mjs";
+import { ResourceNotFound } from "../data/errors/resource_not_found.mjs";
 import { userResponseSchema } from "../models/user.mjs";
 import { db } from "../services/database.mjs";
 import { runWithElapsed } from "../services/logger.mjs";
@@ -23,7 +24,10 @@ export class UserModule {
       const hashedPassword = await bcrypt.hash(password, saltRounds);
 
       /** @type {*} */
-      const result = await db.create("users", { email, password: hashedPassword });
+      const result = await db.create("users", {
+        email,
+        password: hashedPassword,
+      });
 
       const entity = result[0];
 
@@ -71,5 +75,27 @@ export class UserModule {
     });
     console.log(`Email ${email} does ${result ? "" : "not"} exist`);
     return result;
+  }
+
+  // MARK: Deletes
+
+  /**
+   *
+   * @param {string} email
+   */
+  static async deleteByEmail(email) {
+    await runWithElapsed("USER:DELETE", async () => {
+      const result = await db.query(
+        "SELECT id from users where email = $email",
+        { email }
+      );
+      /** @type {import('../models/user.mjs').Iuser[]} */
+      // @ts-ignore
+      const users = result[0];
+      if (users.length == 0) {
+        throw new ResourceNotFound();
+      }
+      db.delete(users[0].id);
+    });
   }
 }
