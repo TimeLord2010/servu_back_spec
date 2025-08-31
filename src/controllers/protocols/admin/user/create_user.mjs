@@ -1,5 +1,5 @@
-import { userCreateSchema } from "../../../models/user.mjs";
-import { UserModule } from "../../../modules/user_module.mjs";
+import { userCreateSchema } from "../../../../models/user.mjs";
+import { UserModule } from "../../../../modules/user_module.mjs";
 
 /**
  *

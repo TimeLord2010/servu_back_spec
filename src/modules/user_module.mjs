@@ -77,6 +77,40 @@ export class UserModule {
     return result;
   }
 
+  /**
+   *
+   * @param {object} params
+   * @param {string} params.email
+   * @param {string} params.password
+   */
+  static async authenticate({ email, password }) {
+    return await runWithElapsed("USER:AUTHENTICATE", async () => {
+      /** @type {*[][]} */
+      const result = await db.query(
+        "SELECT * FROM users WHERE email = $email",
+        { email }
+      );
+
+      /** @type {import('../models/user.mjs').Iuser[]} */
+      const users = result[0];
+      if (users.length === 0) {
+        return null;
+      }
+
+      const user = users[0];
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+
+      if (!isPasswordValid) {
+        return null;
+      }
+
+      return userResponseSchema.parse({
+        id: user.id.toString(),
+        email: user.email,
+      });
+    });
+  }
+
   // MARK: Deletes
 
   /**

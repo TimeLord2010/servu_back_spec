@@ -1,33 +1,20 @@
 import express from "express";
 import "express-async-errors";
 import { configuration } from "../data/configuration.mjs";
-import { createUserRoutes } from "./routes/user_router.mjs";
-import { ZodError } from "zod";
+import { errorHandlerMiddleware } from "./middlewares/error_handler_middleware.mjs";
+import { adminRouter } from "./routes/admin_router.mjs";
+import { userRouter } from "./routes/user_router.mjs";
 
 export async function createHttpServer() {
   const app = express();
 
   app.use(express.json());
 
-  createUserRoutes(app);
+  app.use("/admin", adminRouter);
 
-  // Global error handling middleware
-  app.use((err, req, res, next) => {
-    console.error(err.stack);
+  app.use("/users", userRouter);
 
-    if (err instanceof ZodError) {
-      res.status(422).json({
-        issues: err.issues,
-      });
-    }
-
-    res.status(err.status || err.statusCode || 500).json({
-      error: {
-        message: err.message,
-        ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
-      },
-    });
-  });
+  app.use(errorHandlerMiddleware);
 
   const port = configuration.port;
 

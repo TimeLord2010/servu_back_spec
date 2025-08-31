@@ -1,4 +1,4 @@
-import { UserModule } from "../../../modules/user_module.mjs";
+import { UserModule } from "../../../../modules/user_module.mjs";
 
 /**
  *
@@ -7,7 +7,7 @@ import { UserModule } from "../../../modules/user_module.mjs";
  */
 export async function findUsers(req, res) {
   const users = await UserModule.findAll();
-  
+
   res.json({
     users: users,
   });

@@ -1,4 +1,4 @@
-import { UserModule } from "../../../modules/user_module.mjs";
+import { UserModule } from "../../../../modules/user_module.mjs";
 
 /**
  *
